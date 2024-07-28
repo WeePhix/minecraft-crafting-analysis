@@ -5,22 +5,21 @@ from selenium.webdriver.common.by import By
 web_url = "https://minecraft.wiki/w/Crafting"
 html_filename = "page.html"
 csv_filename = "data.csv"
-section_file_name = "section"
 directory = "data"
 show_button_class = "jslink"
 
-section_title = '<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">'
+section_pattern = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(?s:.*?)</table>'
+section_titles = ["Building blocks", "Decoration blocks", "Redstone", "Transportation", "Foodstuffs", "Tools", "Utilities", "Combat", "Brewing", "Materials", "Miscellaneous"]
 
 driver = webdriver.Chrome()
 
 
 def get_html_str(url: str) -> str:
     driver.get(url)
-    # Instead of waiting 5 seconds every time, find a way to continue the code when the page is loaded
+    # Instead of waiting 2 seconds every time, find a way to continue the code when the page is loaded
     driver.implicitly_wait(1)
     buttons = driver.find_elements(By.CLASS_NAME, show_button_class)
-    print(buttons)
-    for i in range(11):
+    for i in range(len(section_titles)):
         buttons[i].click()
         driver.implicitly_wait(1)
     return driver.page_source
@@ -46,14 +45,19 @@ def separate_sections(text: str, pattern: str, number_of_sections: int) -> list:
     return sections[1:]
 
 
-def save_sections_to_files(filename: str, directory: str):
-    sections = separate_sections(html, section_title, 11)
-    for i, section in enumerate(sections):
-        save_str_to_html(section, filename + str(i) + ".txt", directory)
+def save_sections_to_files(html_fname: str, section_names: list, directory: str):
+    path = os.path.join(directory, html_fname)
+    with open(path, "r", encoding="utf8") as file:
+        html = file.read()
+    for i, section in enumerate(re.finditer(section_pattern, html)):
+        os.makedirs(directory, exist_ok=True)
+        path = os.path.join(directory, section_names[i] + ".txt")
+        with open(path, "w", encoding="utf8") as file:
+            file.write(section.group())
 
 
 if __name__ == "__main__":
     html = get_html_str(web_url)
     save_str_to_html(html, html_filename, directory)
-    save_sections_to_files(section_file_name, directory)
+    save_sections_to_files(html_filename, section_titles, directory)
 driver.close()

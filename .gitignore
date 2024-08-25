@@ -1,6 +1,9 @@
 # Data folder
 data
 
+#Python file meant for testing
+testing.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

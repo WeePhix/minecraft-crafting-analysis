@@ -1,73 +1,59 @@
-import csv, os, requests, re
+import csv, os, re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 web_url = "https://minecraft.wiki/w/Crafting"
 show_button_class = "jslink"
 
-# vse, potrebno za iskanje, branje in pisanje datotek
+# Everything necessary for writing, reading files:
 FILENAME_html = "page.html"
 FILENAME_csv = "data.csv"
+FILENAME_items = "items.txt"
 directory = "data"
 section_titles = ["Building_blocks", "Decoration_blocks", "Redstone", "Transportation", "Foodstuffs", "Tools", "Utilities", "Combat", "Brewing", "Materials", "Miscellaneous"]
 
 
-# Vsi razlicni vzorci za regex:
+# All the necessary regex patters:
 PATTERN_section = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(?s:.*?)</table>'
-PATTERN_item = r'<th><a href="(?s:.*?)</td>(?s:.*?)<td>(?s:.*?)</tr>'
-# the first group is the header (item) and the next cell (materials), the second group is the recipe layout, the third group is the description
-PATTERN_row = r'<span class="mcui-row">(?s:.*?</span>)</span>' # the group contains everything within a row
+PATTERN_item = r'th><a href="/w/(.*?)".*?<span class="mcui-input">(.*?)</span><span class="mcui-arrow">.*?<span class="invslot-stacksize" title=".*?">(\d*?)</span></a></span></span></span></span></div></td><td>(.*?)</td></tr>'
+# groups follow like this: item name, recipe layout, recipe yield, description
+
+PATTERN_row = r'<span class="mcui-row">(?s:.*?</span>)</span>'
 PATTERN_slot = r'<span class="invslot">(?s:.*?)</span>'
-PATTERN_full_slot = r'<span class="invslot-item invslot-item-image">(?s:.*?)title="(?s:.*?)"><img alt='
+PATTERN_full_slot = r'<span class="invslot-item invslot-item-image">?s:.*?title="(?s:.*?)"><img alt='
 
 
-DESCRIPTION_bedrock_only = '&zwnj;<sup class="noprint nowrap Inline-Template" title="">[<i><span title="This statement only applies to Bedrock Edition"><a href="/w/Bedrock_Edition" title="Bedrock Edition">Bedrock Edition</a>  only</span></i>]</sup></td>'
+DESCRIPTIONS_NOJAVA = ['"This statement only applies to Bedrock Edition"', '"This statement only applies to Bedrock Edition and Minecraft Education"']
 
-item_list = []
+item_dict = {}
+# key is the name of the item, value is the corresponding Item object
 
 
 class Item():
-    def __init__(self, item_name) -> None:
+    def __init__(self, item_name, section) -> None:
         self.name = item_name
+        self.section = section
         self.recipes = set()
-        self.materials = []
     
-    def new_recipe(self, recipe: list) -> None:
-        self.recipes.add(recipe)
-        for item in recipe:
-            item.new_material(self)
-    
-    def new_material(self, item):
-        self.materials.append(item)
-        self.materials.sort()
-        mats = self.materials[0]
-        for i in range(1, len(self.materials)):
-            if self.materials[i] != self.materials[i-1]:
-                mats.append(self.materials[i])
-        self.materials = mats
+    def new_recipe(self, recipe: dict) -> None:
+        out = ''
+        keys = recipe.keys()
+        keys.sort()
+        for mat in keys:
+            if mat != "yield":
+                out += str(recipe[mat]) + mat
+        out += recipe["yield"]
+        self.recipes.add(out)
     
     def __str__(self) -> str:
-        out = 'Recipes:\n'
+        out = self.section + ":" + self.name + "\nRecipes:\n"
         for recipe in self.recipes:
-            i = 0
-            maxlen = max(len(material) for material in recipe[:9])
-            for i, material in enumerate(recipe):
-                out += material  + ' ' * (maxlen - len(material))
-                if i == 5:
-                    out += ' --> ' + recipe[9] + self.name
-                if i % 3 == 2:
-                    out += '\n'
-        out += '\nIs a material for crafting: '
-        for m in self.materials:
-            out += m + ", "
-        out = out[:-2]
+            out += recipe + "\n"
         return out
 
 
-driver = webdriver.Chrome()
-
-
-def get_html_str(url: str, show_class:str = show_button_class) -> str:
+def save_url_to_file(url: str=web_url, show_class:str=show_button_class, filename: str=FILENAME_html, directory: str=directory) -> None:
+    driver = webdriver.Chrome()
     driver.get(url)
     # Instead of waiting 4 seconds every time, find a way to continue the code when the page is loaded
     driver.implicitly_wait(2)
@@ -75,62 +61,81 @@ def get_html_str(url: str, show_class:str = show_button_class) -> str:
     for i in range(len(section_titles)):
         buttons[i].click()
         driver.implicitly_wait(2)
-    out = driver.page_source
-    return out
-
-
-def save_str_to_html(text: str, filename: str, directory: str) -> None:
+    
     os.makedirs(directory, exist_ok=True)
     path = os.path.join(directory, filename)
     with open(path, 'w', encoding='utf-8') as file_out:
-        file_out.write(text)
+        file_out.write(driver.page_source)
+    driver.close()
     return
 
 
-def separate_sections(text: str, pattern: str, number_of_sections: int) -> list:
-    index = 0
-    last_index = 0
-    sections = []
-    for i in range(number_of_sections):
-        index = text.index(pattern)
-        sections.append(text[last_index:index])
-        text = text[index:]
-        last_index = index
-    return sections[1:]
-
-
-def save_sections_to_files(html_fname: str, section_names: list, directory: str):
+def save_sections_to_files(html_fname: str=FILENAME_html, section_titles: list=section_titles, directory: str=directory) -> None:
     path = os.path.join(directory, html_fname)
     with open(path, "r", encoding="utf8") as file:
         html = file.read()
     for i, section in enumerate(re.finditer(PATTERN_section, html)):
-        path = os.path.join(directory, section_names[i] + ".txt")
+        path = os.path.join(directory, section_titles[i] + ".txt")
         with open(path, "w", encoding="utf8") as file:
             file.write(section.group())
 
 
-def distinguish_items(section_fname: str, directory: str = directory, pattern: str = PATTERN_item, bedrock_only: str = DESCRIPTION_bedrock_only):
-    path = os.path.join(directory, section_fname)
+def distinguish_items_in_section(section_fname: str, directory: str=directory, pattern: str=PATTERN_item, no_java: str=DESCRIPTIONS_NOJAVA):
+    print("checking through section: " + section_fname)
+    path = os.path.join(directory, section_fname + ".txt")
     with open(path, "r", encoding="utf8") as file:
         section = file.read()
-    for item in re.finditer(pattern, section):
-        if item.group(2) == bedrock_only:
-            continue
-        save_item_to_class(item.group(1))
+        print("file read")
+    
+    items = re.finditer(pattern, section, re.DOTALL)
+    print("items in section: " + sum(1 for _ in items))
+    for item in items:
+        print("checking item: ", item.group(1))
+        #for nojava in no_java:
+            #if nojava in item.group(3):
+                #continue
+        save_item_to_class(item.group(0), item.group(1), section_fname, item.group(2))
 
 
-def save_item_to_class(item_html: str, row_pattern:str = PATTERN_row, slot_pattern: str = PATTERN_slot, full_pattern: str = PATTERN_full_slot, item_list: list = item_list):
-    recipe = []
+def save_item_to_class(item_name:str, item_html: str, item_section: str, recipe_yield: str, row_pattern:str=PATTERN_row, slot_pattern: str=PATTERN_slot, full_pattern: str=PATTERN_full_slot, item_dict: dict=item_dict) -> None:
+    print("saving recipe of " + item_name)
+    recipe = {}
     for row in re.finditer(row_pattern, item_html):
+        # checks each slot in the recipe. If it is not empty, the crafting material is added to the recipe dict
         for slot in re.finditer(slot_pattern, row.group()):
             if slot.group() == '':
-                recipe.append(None)
+                continue
             else:
-                recipe.append(re.match(full_pattern, slot.group()).group(1))
-            
+                mat_name = re.match(full_pattern, slot.group()).group(1)
+                if mat_name not in recipe.keys():
+                    recipe[mat_name] = 0
+                recipe[mat_name] += 1
+    if recipe_yield == "":
+        recipe["yield"] = 1
+    else:
+        recipe["yield"] = int(recipe_yield)
+    
+    if item_name in item_dict.keys():
+        item_dict[item_name] = Item(item_name, item_section)
+    item_dict[item_name].new_recipe(recipe)
+
+
+def save_items_to_file(item_dict: dict = item_dict, directory: str = directory, file_name = FILENAME_items):
+    for item in item_dict.keys():
+        print(item_dict[item])
+    path = os.path.join(directory, file_name)
+    out = ''
+    for item in item_dict.values():
+        print("saving to file: " + item.name)
+        out += item.name + "\n" + str(item) + "\n#" * 2 + "\n"
+    with open(path, "w", encoding="utf8") as file:
+        file.write(out)
+
 
 if __name__ == "__main__":
-    html = get_html_str(web_url)
-    save_str_to_html(html, FILENAME_html, directory)
-    save_sections_to_files(FILENAME_html, section_titles, directory)
-driver.close()
+    if False:
+        save_url_to_file()
+        save_sections_to_files()
+    for section in section_titles:
+        distinguish_items_in_section(section)
+    save_items_to_file()

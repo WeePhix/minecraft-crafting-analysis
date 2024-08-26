@@ -2,6 +2,8 @@ import csv, os, re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+download_from_web = False
+
 web_url = "https://minecraft.wiki/w/Crafting"
 show_button_class = "jslink"
 
@@ -15,7 +17,11 @@ section_titles = ["Building_blocks", "Decoration_blocks", "Redstone", "Transport
 
 # All the necessary regex patters:
 PATTERN_section = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(?s:.*?)</table>'
-PATTERN_item = r'th><a href="/w/(.*?)".*?<span class="mcui-input">(.*?)</span><span class="mcui-arrow">.*?<span class="invslot-stacksize" title=".*?">(\d*?)</span></a></span></span></span></span></div></td><td>(.*?)</td></tr>'
+PATTERN_item = r'<tr><th><a href="/w/(.*?)</td></tr>'
+PATTERN_item_name = r'^(.*?)"'
+PATTERN_item_recipe = r'<span class="mcui-input">(.*?)<span class="mcui-arrow">'    
+PATTERN_item_yield = r'">([0-9]+)</span></a></span></span></span></span></div></td>'
+PATTERN_item_description = r'</div></td><td>(.*?)$'
 # groups follow like this: item name, recipe layout, recipe yield, description
 
 PATTERN_row = r'<span class="mcui-row">(?s:.*?</span>)</span>'
@@ -37,12 +43,12 @@ class Item():
     
     def new_recipe(self, recipe: dict) -> None:
         out = ''
-        keys = recipe.keys()
+        keys = list(recipe.keys())
         keys.sort()
         for mat in keys:
             if mat != "yield":
                 out += str(recipe[mat]) + mat
-        out += recipe["yield"]
+        out += str(recipe["yield"])
         self.recipes.add(out)
     
     def __str__(self) -> str:
@@ -65,7 +71,8 @@ def save_url_to_file(url: str=web_url, show_class:str=show_button_class, filenam
     os.makedirs(directory, exist_ok=True)
     path = os.path.join(directory, filename)
     with open(path, 'w', encoding='utf-8') as file_out:
-        file_out.write(driver.page_source)
+        file_out.write(re.sub("\n", "", driver.page_source))
+        driver.implicitly_wait(2)
     driver.close()
     return
 
@@ -74,39 +81,43 @@ def save_sections_to_files(html_fname: str=FILENAME_html, section_titles: list=s
     path = os.path.join(directory, html_fname)
     with open(path, "r", encoding="utf8") as file:
         html = file.read()
-    for i, section in enumerate(re.finditer(PATTERN_section, html)):
+    for i, section in enumerate(re.findall(PATTERN_section, html)[:]):
         path = os.path.join(directory, section_titles[i] + ".txt")
         with open(path, "w", encoding="utf8") as file:
-            file.write(section.group())
+            file.write(section)
 
 
-def distinguish_items_in_section(section_fname: str, directory: str=directory, pattern: str=PATTERN_item, no_java: str=DESCRIPTIONS_NOJAVA):
+def distinguish_items_in_section(section_fname: str, directory: str=directory, item_pattern: str=PATTERN_item, no_java: str=DESCRIPTIONS_NOJAVA):
     print("checking through section: " + section_fname)
     path = os.path.join(directory, section_fname + ".txt")
     with open(path, "r", encoding="utf8") as file:
         section = file.read()
         print("file read")
     
-    items = re.finditer(pattern, section, re.DOTALL)
-    print("items in section: " + sum(1 for _ in items))
+    items = re.findall(item_pattern, section)
+    print("items in section: " + str(len(items)))
     for item in items:
-        print("checking item: ", item.group(1))
-        #for nojava in no_java:
-            #if nojava in item.group(3):
-                #continue
-        save_item_to_class(item.group(0), item.group(1), section_fname, item.group(2))
+        name = re.search(PATTERN_item_name, item).group(1)
+        recipe = re.search(PATTERN_item_recipe, item).group(1)
+        ryield = re.search(PATTERN_item_yield, item)
+        if ryield:
+            ryield = ryield.group(1)
+        else:
+            ryield = 1
+        desc = re.search(PATTERN_item_description, item).group(1)
+        save_item_to_class(name, recipe, ryield, desc ,section_fname)
 
 
-def save_item_to_class(item_name:str, item_html: str, item_section: str, recipe_yield: str, row_pattern:str=PATTERN_row, slot_pattern: str=PATTERN_slot, full_pattern: str=PATTERN_full_slot, item_dict: dict=item_dict) -> None:
+def save_item_to_class(item_name:str, item_html: str, recipe_yield: str, item_section: str, row_pattern:str=PATTERN_row, slot_pattern: str=PATTERN_slot, full_pattern: str=PATTERN_full_slot, item_dict: dict=item_dict) -> None:
     print("saving recipe of " + item_name)
     recipe = {}
-    for row in re.finditer(row_pattern, item_html):
+    for row in re.findall(row_pattern, item_html):
         # checks each slot in the recipe. If it is not empty, the crafting material is added to the recipe dict
-        for slot in re.finditer(slot_pattern, row.group()):
-            if slot.group() == '':
+        for slot in re.finditer(slot_pattern, row):
+            if slot.group(1) == '':
                 continue
             else:
-                mat_name = re.match(full_pattern, slot.group()).group(1)
+                mat_name = re.search(full_pattern, slot.group(1)).group(1)
                 if mat_name not in recipe.keys():
                     recipe[mat_name] = 0
                 recipe[mat_name] += 1
@@ -115,25 +126,23 @@ def save_item_to_class(item_name:str, item_html: str, item_section: str, recipe_
     else:
         recipe["yield"] = int(recipe_yield)
     
-    if item_name in item_dict.keys():
+    if item_name not in item_dict.keys():
         item_dict[item_name] = Item(item_name, item_section)
     item_dict[item_name].new_recipe(recipe)
 
 
 def save_items_to_file(item_dict: dict = item_dict, directory: str = directory, file_name = FILENAME_items):
-    for item in item_dict.keys():
-        print(item_dict[item])
     path = os.path.join(directory, file_name)
     out = ''
     for item in item_dict.values():
         print("saving to file: " + item.name)
-        out += item.name + "\n" + str(item) + "\n#" * 2 + "\n"
+        out += str(item) + "\n#" * 2 + "\n"
     with open(path, "w", encoding="utf8") as file:
         file.write(out)
 
 
 if __name__ == "__main__":
-    if False:
+    if download_from_web:
         save_url_to_file()
         save_sections_to_files()
     for section in section_titles:

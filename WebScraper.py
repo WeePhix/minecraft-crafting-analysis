@@ -2,7 +2,7 @@ import csv, os, re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-download_from_web = True
+download_from_web = False
 
 web_url = "https://minecraft.wiki/w/Crafting"
 show_button_class = "jslink"
@@ -40,17 +40,21 @@ class Item():
     def __init__(self, item_name, section) -> None:
         self.name = item_name
         self.section = section
-        self.recipes = set()
+        self.recipes = []
     
     def new_recipe(self, recipe: dict, ryield: int) -> None:
-        out = ''
+        if len(recipe) == 0:
+            return
+        ings = ''
+        amms = ''
         keys = list(recipe.keys())
         keys.sort()
         for mat in keys:
-            if mat != "yield":
-                out += str(recipe[mat]) + mat
-        out += str(ryield)
-        self.recipes.add(out)
+            amms += str(recipe[mat]) + ';'
+            ings += re.sub(" ", "_", mat) + ';'
+        self.recipes.append((ings[:-1], amms[:-1], str(ryield)))
+    
+    # ('Cobblestone;Diorite', '1;1', '2')
     
     def __str__(self) -> str:
         out = self.section + ":" + self.name + "\nRecipes:\n"
@@ -104,13 +108,15 @@ def distinguish_items_in_section(section_fname: str, directory: str=directory, i
             ryield = ryield.group(1)
         else:
             ryield = 1
-        
-        save_item_to_class(name, recipe, ryield, section_fname)
+        for d in no_java:
+            if d in desc:
+                break
+        else:
+            save_item_to_class(name, recipe, ryield, section_fname)
 
 
 def save_item_to_class(item_name:str, item_html: str, recipe_yield: str, item_section: str, slot_pattern: str=PATTERN_slot, changing_pattern: str=PATTERN_changing_slot, full_pattern: str=PATTERN_full_slot, item_dict: dict=item_dict) -> None:
     recipe = {}
-    print(item_name)
     
     for slot in re.findall(slot_pattern, item_html, re.DOTALL):
         mat = re.search(full_pattern, slot)
@@ -125,10 +131,14 @@ def save_item_to_class(item_name:str, item_html: str, recipe_yield: str, item_se
             specific_mat = changing_slot.group(1)
         except:
             specific_mat = changing_slot
+        
         for specific in GENERAL_items.keys():
             if re.search(specific, specific_mat):
                 mat = re.sub(specific, GENERAL_items[specific], specific_mat)
                 break
+        
+        if mat == '':
+            mat = specific_mat
         
         if mat in recipe.keys():
             recipe[mat] += 1
@@ -140,8 +150,6 @@ def save_item_to_class(item_name:str, item_html: str, recipe_yield: str, item_se
         recipe_yield = 1
     else:
         recipe_yield = int(recipe_yield)
-    
-    print(item_section, item_name, recipe, recipe_yield)
     
     if item_name not in item_dict.keys():
         item_dict[item_name] = Item(item_name, item_section)
@@ -157,6 +165,17 @@ def save_items_to_file(item_dict: dict = item_dict, directory: str = directory, 
         file.write(out)
 
 
+def write_items_to_csv(csv_fname: str=FILENAME_csv, directory: str=directory) -> None:
+    out = 'Section,Name,Ingredients,Ammounts,Yield\n'
+    for item in item_dict.values():
+        for i, recipe in enumerate(item.recipes):
+            out += item.section + ',' + item.name + ',' + recipe[0] + ',' + recipe[1] + ',' + recipe[2] +'\n'
+    path = os.path.join(directory, csv_fname)
+    
+    with open(path, "w", encoding="utf8") as file:
+        file.write(out)
+
+
 if __name__ == "__main__":
     if download_from_web:
         save_url_to_file()
@@ -164,4 +183,4 @@ if __name__ == "__main__":
     
     for section in section_titles:
         distinguish_items_in_section(section)
-    save_items_to_file()
+    write_items_to_csv()

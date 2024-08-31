@@ -16,7 +16,7 @@ section_titles = ["Building_blocks", "Decoration_blocks", "Redstone", "Transport
 
 
 # All the necessary regex patters:
-PATTERN_section = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(.*?)</table>'
+PATTERN_section = r'<table class="wikitable collapsible sortable.*?" data-description="Crafting recipes">(.*?)</table>'
 PATTERN_item = r'<tr><th><a href="/w/(.*?)</td></tr>'
 PATTERN_item_name = r'^(.*?)"'
 PATTERN_item_recipe = r'<span class="mcui-input">(.*?)<span class="mcui-arrow">'    
@@ -69,7 +69,7 @@ def save_url_to_file(url: str=web_url, show_class:str=show_button_class, filenam
     # Instead of waiting 4 seconds every time, find a way to continue the code when the page is loaded
     driver.implicitly_wait(4)
     buttons = driver.find_elements(By.CLASS_NAME, show_class)
-    for i in range(len(section_titles)):
+    for i in range(len(section_titles) + 1):
         buttons[i].click()
         driver.implicitly_wait(4)
     

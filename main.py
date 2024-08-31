@@ -2,7 +2,7 @@ import csv, os, re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-download_from_web = False
+download_from_web = True
 
 web_url = "https://minecraft.wiki/w/Crafting"
 show_button_class = "jslink"
@@ -16,7 +16,7 @@ section_titles = ["Building_blocks", "Decoration_blocks", "Redstone", "Transport
 
 
 # All the necessary regex patters:
-PATTERN_section = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(?s:.*?)</table>'
+PATTERN_section = r'<table class="wikitable collapsible sortable jquery-tablesorter" data-description="Crafting recipes">(.*?)</table>'
 PATTERN_item = r'<tr><th><a href="/w/(.*?)</td></tr>'
 PATTERN_item_name = r'^(.*?)"'
 PATTERN_item_recipe = r'<span class="mcui-input">(.*?)<span class="mcui-arrow">'    
@@ -67,18 +67,17 @@ def save_url_to_file(url: str=web_url, show_class:str=show_button_class, filenam
     driver = webdriver.Chrome()
     driver.get(url)
     # Instead of waiting 4 seconds every time, find a way to continue the code when the page is loaded
-    driver.implicitly_wait(2)
+    driver.implicitly_wait(4)
     buttons = driver.find_elements(By.CLASS_NAME, show_class)
     for i in range(len(section_titles)):
         buttons[i].click()
-        driver.implicitly_wait(2)
+        driver.implicitly_wait(4)
     
     os.makedirs(directory, exist_ok=True)
     path = os.path.join(directory, filename)
     with open(path, 'w', encoding='utf-8') as file_out:
         no_nl = re.sub("\n", "", driver.page_source)
         file_out.write(re.sub(r'<span class="mw-headline" id="Removed_recipes">Removed recipes</span>.*', '', no_nl))
-        driver.implicitly_wait(2)
     driver.quit()
     return
 
@@ -87,7 +86,8 @@ def save_sections_to_files(html_fname: str=FILENAME_html, section_titles: list=s
     path = os.path.join(directory, html_fname)
     with open(path, "r", encoding="utf8") as file:
         html = file.read()
-    for i, section in enumerate(re.findall(PATTERN_section, html)[:]):
+    for i, section in enumerate(re.findall(PATTERN_section, html)):
+        print(i, section_titles[i])
         path = os.path.join(directory, section_titles[i] + ".txt")
         with open(path, "w", encoding="utf8") as file:
             file.write(section)
@@ -165,7 +165,7 @@ def save_items_to_file(item_dict: dict = item_dict, directory: str = directory, 
         file.write(out)
 
 
-def write_items_to_csv(csv_fname: str=FILENAME_csv, directory: str=directory) -> None:
+def write_items_to_csv(csv_fname: str=FILENAME_csv) -> None:
     out = 'Section,Name,Ingredients,Ammounts,Yield\n'
     for item in item_dict.values():
         for i, recipe in enumerate(item.recipes):

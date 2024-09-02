@@ -13,9 +13,11 @@ Program `analiza.ipynb` nato iz te datoteke prebere vse podatke o vsakem predmet
 ## Uporaba
 
 Za uporabo projekta morate imeti naložene naslednje knjižnice:
+
 - selenium
 - pandas
 - matplotlib
+
 Naložite jih lahko tako, da v terminal vtipkate `pip install <knjižnica>`, kjer `<knjižnica>` nadomestite z manjkajočo knjižnico
 
 Poleg tega, je bil program napisan v verziji 3.12.5 programskega jezika Python, zato pri poskusu zagona programa s starejšo različico morda pride do težav.

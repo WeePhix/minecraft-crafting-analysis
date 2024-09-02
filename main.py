@@ -1,9 +1,9 @@
-import csv, os, re
+import os, re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 # Decides if the download script runs or not
-download_from_web = False
+download_from_web = True
 
 web_url = "https://minecraft.wiki/w/Crafting"
 show_button_class = "jslink"

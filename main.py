@@ -30,9 +30,8 @@ PATTERN_changing_slot = r'<span class="invslot animated animated-lazyloaded">.*?
 # Desctiptions of items, that are not in the Java edition of Minecraft
 DESCRIPTIONS_NOJAVA = ['"This statement only applies to Bedrock Edition"', '"This statement only applies to Bedrock Edition and Minecraft Education"']
 # List of unimportant item details (wood and copper types and colours)
-GENERAL_items = {r'[Spruce|Dark_Oak|Oak|Birch|Jungle|Warped|Crimson|Cherry|Acacia|Mangrove]': '',
-                 r'Bamboo_Planks': 'Planks', r'[Oxidized|Weathered|Exposed]': '',
-                 r'[White|Light_Gray|Gray|Black|Brown|Red|Orange|Yellow|Lime|Green|Cyan|Light_Blue|Blue|Purple|Magenta|Pink]': ''}
+GENERAL_items = {r'[Spruce|Dark_Oak|Oak|Birch|Jungle|Warped|Crimson|Cherry|Acacia|Mangrove|White|Light_Gray|Gray|Black|Brown|Red|Orange|Yellow|Lime|Green|Cyan|Light_Blue|Blue|Purple|Magenta|Pink|Oxidized|Weathered|Exposed]': '',
+                 r'Bamboo_Planks': 'Planks'}
 
 item_dict = {}
 # The key is the name of the item, the value is the corresponding Item object
@@ -41,6 +40,8 @@ item_dict = {}
 class Item():
     def __init__(self, item_name, section) -> None:
         self.name = re.sub("%27", "'", item_name)
+        if self.name == "Boat":
+            self.name = "Oak_Boat"
         self.section = section
         # The basic info of an item
         
@@ -54,11 +55,13 @@ class Item():
         keys = list(recipe.keys())
         keys.sort()
         for mat in keys:
-            if '" tt="' in mat:
+            if '=' in mat:
                 continue
             else:
                 ams += str(recipe[mat]) + ';'
                 ings += re.sub(" ", "_", mat) + ';'
+        if self.name in ings:
+            return
         self.recipes.append((ings[:-1], ams[:-1], str(ryield)))
         # Saves a recipe for the item in the following format: tuple('ingredient1;ingredient2;...' , 'amount1;amount2;...', 'yield')
     

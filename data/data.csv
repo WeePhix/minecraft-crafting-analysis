@@ -28,7 +28,6 @@ Building_blocks,Bookshelf,Book;Oak_Planks,3;6,1
 Building_blocks,Brick_Slab,Bricks,3,6
 Building_blocks,Brick_Stairs,Bricks,6,4
 Building_blocks,Bricks,Brick,4,1
-Building_blocks,Carpet,White_Carpet;White_Dye,1;1,1
 Building_blocks,Carpet,White_Wool,2,3
 Building_blocks,Chain,Iron_Ingot;Iron_Nugget,1;2,1
 Building_blocks,Chiseled_Deepslate,Cobbled_Deepslate_Slab,2,1
@@ -40,7 +39,6 @@ Building_blocks,Chiseled_Sandstone,Sandstone_Slab,2,1
 Building_blocks,Chiseled_Stone_Bricks,Stone_Brick_Slab,2,1
 Building_blocks,Chiseled_Tuff_Bricks,Tuff_Brick_Slab,2,1
 Building_blocks,Chiseled_Tuff,Tuff_Slab,2,1
-Building_blocks,Clay,Clay_Ball,4,1
 Building_blocks,Coarse_Dirt,Dirt;Gravel,2;2,4
 Building_blocks,Cobbled_Deepslate_Slab,Cobbled_Deepslate,3,6
 Building_blocks,Cobbled_Deepslate_Stairs,Cobbled_Deepslate,6,4
@@ -72,14 +70,12 @@ Building_blocks,Dripstone_Block,Pointed_Dripstone,4,1
 Building_blocks,End_Stone_Brick_Slab,End_Stone_Bricks,3,6
 Building_blocks,End_Stone_Brick_Stairs,End_Stone_Bricks,6,4
 Building_blocks,End_Stone_Bricks,End_Stone,4,4
-Building_blocks,Glowstone,Glowstone_Dust,4,1
 Building_blocks,Granite_Slab,Granite,3,6
 Building_blocks,Granite_Stairs,Granite,6,4
 Building_blocks,Granite,Diorite;Nether_Quartz,1;1,1
 Building_blocks,Hay_Bale,Wheat,9,1
 Building_blocks,Jack_o'Lantern,Carved_Pumpkin;Torch,1;1,1
 Building_blocks,Magma_Block,Magma_Cream,4,1
-Building_blocks,Melon,Melon_Slice,9,1
 Building_blocks,Mossy_Cobblestone_Slab,Mossy_Cobblestone,3,6
 Building_blocks,Mossy_Cobblestone_Stairs,Mossy_Cobblestone,6,4
 Building_blocks,Mossy_Cobblestone,Cobblestone;Moss_Block,1;1,1
@@ -123,7 +119,6 @@ Building_blocks,Prismarine_Brick_Stairs,Prismarine_Bricks,6,4
 Building_blocks,Prismarine_Bricks,Prismarine_Shard,9,1
 Building_blocks,Prismarine_Slab,Prismarine,3,6
 Building_blocks,Prismarine_Stairs,Prismarine,6,4
-Building_blocks,Prismarine,Prismarine_Shard,4,1
 Building_blocks,Purpur_Block,Popped_Chorus_Fruit,4,4
 Building_blocks,Purpur_Pillar,Purpur_Slab,2,1
 Building_blocks,Purpur_Slab,Purpur_Block,2,6
@@ -161,14 +156,12 @@ Building_blocks,Tinted_Glass,Amethyst_Shard;Glass,4;1,2
 Building_blocks,Wood,Oak_Log,4,3
 Building_blocks,Wooden_Slab,Oak_Planks,3,6
 Building_blocks,Wooden_Stairs,Oak_Planks,6,4
-Building_blocks,Wool,White_Dye;White_Wool,1;1,1
 Building_blocks,White_Wool,String,4,1
 Decoration_blocks,Andesite_Wall,Andesite,6,6
 Decoration_blocks,Anvil,Block_of_Iron;Iron_Ingot,3;4,1
 Decoration_blocks,Armor_Stand,Smooth_Stone_Slab;Stick,1;6,1
 Decoration_blocks,Banner,Stick;White_Wool,1;6,1
 Decoration_blocks,Barrel,Oak_Planks;Oak_Slab,5;2,1
-Decoration_blocks,Bed,White_Bed;White_Dye,1;1,1
 Decoration_blocks,Bed,Oak_Planks;White_Wool,3;3,1
 Decoration_blocks,Beehive,Honeycomb;Oak_Planks,3;5,1
 Decoration_blocks,Blackstone_Wall,Blackstone,6,6
@@ -230,7 +223,6 @@ Decoration_blocks,Sign,Oak_Planks;Stick,6;1,3
 Decoration_blocks,Slime_Block,Slimeball,9,1
 Decoration_blocks,Smithing_Table,Iron_Ingot;Oak_Planks,2;4,1
 Decoration_blocks,Smoker,Furnace;Oak_Log,1;3,1
-Decoration_blocks,Snow,Snow_Block,3,6
 Decoration_blocks,Soul_Campfire,Oak_Log;Soul_Sand;Stick,3;1;3,1
 Decoration_blocks,Soul_Campfire,Oak_Log;Soul_Soil;Stick,3;1;3,1
 Decoration_blocks,Soul_Lantern,Iron_Nugget;Soul_Torch,8;1,1
@@ -278,7 +270,7 @@ Redstone,Wooden_Pressure_Plate,Oak_Planks,2,1
 Redstone,Wooden_Trapdoor,Oak_Planks,6,2
 Transportation,Activator_Rail,Iron_Ingot;Redstone_Torch;Stick,6;1;2,6
 Transportation,Boat_with_Chest,Chest;Oak_Boat,1;1,1
-Transportation,Boat,Oak_Planks,5,1
+Transportation,Oak_Boat,Oak_Planks,5,1
 Transportation,Detector_Rail,Iron_Ingot;Redstone_Dust;Stone_Pressure_Plate,6;1;1,6
 Transportation,Minecart_with_Chest,Chest;Minecart,1;1,1
 Transportation,Minecart_with_Furnace,Furnace;Minecart,1;1,1
@@ -291,7 +283,6 @@ Foodstuffs,Beetroot_Soup,Beetroot;Bowl,6;1,1
 Foodstuffs,Bread,Wheat,3,1
 Foodstuffs,Cake,Egg;Milk_Bucket;Sugar;Wheat,1;3;2;3,1
 Foodstuffs,Cookie,Cocoa_Beans;Wheat,1;2,8
-Foodstuffs,Dried_Kelp,Dried_Kelp_Block,1,9
 Foodstuffs,Golden_Apple,Apple;Gold_Ingot,1;8,1
 Foodstuffs,Golden_Carrot,Carrot;Gold_Nugget,1;8,1
 Foodstuffs,Honey_Bottle,Glass_Bottle;Honey_Block,4;1,1
@@ -343,7 +334,6 @@ Combat,Leather_Pants,Leather,7,1
 Combat,Leather_Tunic,Leather,8,1
 Combat,Mace,Breeze_Rod,1,1
 Combat,Ominous_Shield,Shield,1,1
-Combat,Shield,Shield;White_Banner,1;1,1
 Combat,Shield,Iron_Ingot;Oak_Planks,1;5,1
 Combat,Spectral_Arrow,Arrow;Glowstone_Dust,1;4,2
 Combat,Swords,Oak_Planks;Stick,2;1,1
@@ -365,11 +355,8 @@ Materials,Bone_Meal,Bone,1,3
 Materials,Bone_Meal,Bone_Block,1,9
 Materials,Bowl,Oak_Planks,3,4
 Materials,Brown_Dye,Cocoa_Beans,1,1
-Materials,Coal,Block_of_Coal,1,9
 Materials,Cyan_Dye,Blue_Dye;Green_Dye,1;1,1
 Materials,Cyan_Dye,Pitcher_Plant,1,2
-Materials,Diamond,Block_of_Diamond,1,9
-Materials,Emerald,Block_of_Emerald,1,9
 Materials,Gold_Ingot,Block_of_Gold,1,9
 Materials,Gold_Ingot,Gold_Nugget,9,1
 Materials,Gold_Nugget,Gold_Ingot,1,9
@@ -377,7 +364,6 @@ Materials,Gray_Dye,Black_Dye;White_Dye,1;1,1
 Materials,Iron_Ingot,Block_of_Iron,1,9
 Materials,Iron_Ingot,Iron_Nugget,9,1
 Materials,Iron_Nugget,Iron_Ingot,1,9
-Materials,Lapis_Lazuli,Block_of_Lapis_Lazuli,1,9
 Materials,Leather,Rabbit_Hide,4,1
 Materials,Light_Blue_Dye,Blue_Dye;White_Dye,1;1,1
 Materials,Light_Blue_Dye,Blue_Orchid,1,1
@@ -400,14 +386,10 @@ Materials,Pink_Dye,Red_Dye;White_Dye,1;1,1
 Materials,Pink_Dye,Pink_Petals,1,1
 Materials,Pumpkin_Seeds,Pumpkin,1,4
 Materials,Purple_Dye,Blue_Dye;Red_Dye,1;1,1
-Materials,Raw_Copper,Block_of_Raw_Copper,1,9
-Materials,Raw_Gold,Block_of_Raw_Gold,1,9
-Materials,Raw_Iron,Block_of_Raw_Iron,1,9
 Materials,Red_Dye,Rose_Bush,1,2
 Materials,Stick,Oak_Planks,1,4
 Materials,Stick,Bamboo,2,1
 Materials,Sugar,Honey_Bottle,1,3
-Materials,Sugar,Sugar_Cane,1,1
 Materials,Wheat,Hay_Bale,1,9
 Materials,White_Dye,Bone_Meal,1,1
 Materials,White_Dye,Lily_of_the_Valley,1,1
@@ -426,7 +408,6 @@ Miscellaneous,Firework_Star,Gunpowder,1,1
 Miscellaneous,Flower_Charge_Banner_Pattern,Oxeye_Daisy;Paper,1;1,1
 Miscellaneous,Leather_Horse_Armor,Leather,7,1
 Miscellaneous,Empty_Map,Compass;Paper,1;8,1
-Miscellaneous,Map,Empty_Map;Map,1;1,1
 Miscellaneous,Paper,Sugar_Cane,3,3
 Miscellaneous,Skull_Charge_Banner_Pattern,Paper,1,1
 Miscellaneous,Slimeball,Slime_Block,1,9
